@@ -3,6 +3,7 @@ import {
   StyledGrid,
   StyledTitle,
   StyledHeader,
+  StyledLink,
 } from './genre.styles';
 
 function Genre({ children, ...restProps }: any) {
@@ -11,6 +12,10 @@ function Genre({ children, ...restProps }: any) {
 
 Genre.Title = function GenreTitle({ children, ...restProps }: any) {
   return <StyledTitle {...restProps}>{children}</StyledTitle>;
+};
+
+Genre.Link = function GenreLink({ children, ...restProps }: any) {
+  return <StyledLink {...restProps}>{children}</StyledLink>;
 };
 
 Genre.Grid = function GenreGrid({ children, ...restProps }: any) {

@@ -8,10 +8,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { GetMovie, GetRelatedMovies } from '../actions/movie/movieAction';
 import { RootStore } from '../store';
 import { useParams } from 'react-router';
+import Layout from '../core-ui/layout';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Detail = () => {
   const dispatch = useDispatch();
   const params = useParams();
+  const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
   const [movie, setMovie] = useState<any>(null);
@@ -43,6 +46,10 @@ const Detail = () => {
     setIsAddedToWatchList((isAdded) => !isAdded);
   };
 
+  const handleGoBack = () => {
+    navigate(-1); // Goes 1 page back
+  };
+
   if (error) {
     return <span>Something went wrong!</span>;
   }
@@ -52,14 +59,14 @@ const Detail = () => {
   }
 
   return (
-    <React.Fragment>
+    <Layout>
       <Movie>
         <Movie.Image src={movie.poster_path} alt={movie.title} />
 
         <Movie.Content>
           <Container>
             <Movie.Header>
-              <IconButton aria-label="back" color="inherit" size="large">
+              <IconButton color="inherit" size="large" onClick={handleGoBack}>
                 <ArrowBackIcon fontSize="inherit" />
               </IconButton>
             </Movie.Header>
@@ -94,23 +101,25 @@ const Detail = () => {
             {relatedMovies.map((item: any) => {
               return (
                 <Genre.Grid item key={item.id}>
-                  <Card>
-                    <Card.Link href={`/movies/${item.id}`}>
+                  <Card.Link component={Link} to={`/movies/${item.id}`}>
+                    <Card>
                       <Card.Image src={item.poster_path} alt={item.title} />
-                    </Card.Link>
 
-                    <Card.Content>
-                      <Card.Header>{item.title}</Card.Header>
-                      <Card.Body>{getDescription(item.description)}</Card.Body>
-                    </Card.Content>
-                  </Card>
+                      <Card.Content>
+                        <Card.Header>{item.title}</Card.Header>
+                        <Card.Body>
+                          {getDescription(item.description)}
+                        </Card.Body>
+                      </Card.Content>
+                    </Card>
+                  </Card.Link>
                 </Genre.Grid>
               );
             })}
           </Genre.Grid>
         </Genre>
       </Container>
-    </React.Fragment>
+    </Layout>
   );
 };
 

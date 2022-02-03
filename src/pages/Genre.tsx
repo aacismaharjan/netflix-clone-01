@@ -15,6 +15,7 @@ import { useParams } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { GetMoviesByGenreId } from '../actions/genre/genreAction';
 import { RootStore } from '../store';
+import Layout from '../core-ui/layout';
 
 const GenrePage = () => {
   const params = useParams();
@@ -56,7 +57,7 @@ const GenrePage = () => {
   }
 
   return (
-    <React.Fragment>
+    <Layout>
       <Container>
         <Genre>
           <Genre.Header>
@@ -111,7 +112,7 @@ const GenrePage = () => {
           </Genre.Grid>
         </Genre>
       </Container>
-    </React.Fragment>
+    </Layout>
   );
 };
 

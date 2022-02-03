@@ -1,6 +1,7 @@
+import { Link } from '@mui/material';
 import styled from 'styled-components';
 
-export const StyledLink = styled.a`
+export const StyledLink = styled(Link)`
   color: white;
   text-decoration: none;
 `;

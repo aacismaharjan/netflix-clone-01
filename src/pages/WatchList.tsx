@@ -14,6 +14,8 @@ import Genre from '../components/genre';
 import { useDispatch, useSelector } from 'react-redux';
 import { GetAllWatchlist } from '../actions/watchlist/watchlistAction';
 import { RootStore } from '../store';
+import Layout from '../core-ui/layout';
+import { Link } from 'react-router-dom';
 
 const WatchList = () => {
   const dispatch = useDispatch();
@@ -52,7 +54,7 @@ const WatchList = () => {
   }
 
   return (
-    <React.Fragment>
+    <Layout>
       <Container>
         <Genre>
           <Genre.Header>
@@ -91,23 +93,25 @@ const WatchList = () => {
             {watchList.map((item: any) => {
               return (
                 <Genre.Grid item key={item.id}>
-                  <Card>
-                    <Card.Link href={`/movies/${item.id}`}>
+                  <Card.Link component={Link} to={`/movies/${item.id}`}>
+                    <Card>
                       <Card.Image src={item.poster_path} alt={item.title} />
-                    </Card.Link>
 
-                    <Card.Content>
-                      <Card.Header>{item.title}</Card.Header>
-                      <Card.Body>{getDescription(item.description)}</Card.Body>
-                    </Card.Content>
-                  </Card>
+                      <Card.Content>
+                        <Card.Header>{item.title}</Card.Header>
+                        <Card.Body>
+                          {getDescription(item.description)}
+                        </Card.Body>
+                      </Card.Content>
+                    </Card>
+                  </Card.Link>
                 </Genre.Grid>
               );
             })}
           </Genre.Grid>
         </Genre>
       </Container>
-    </React.Fragment>
+    </Layout>
   );
 };
 

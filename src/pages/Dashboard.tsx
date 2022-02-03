@@ -5,6 +5,9 @@ import { GetMoviesByGenre } from '../actions/genre/genreAction';
 import Card from '../components/card';
 import Genre from '../components/genre';
 import { RootStore } from '../store';
+import ResponsiveAppBar from '../core-ui/header';
+import Layout from '../core-ui/layout';
+import { Link } from 'react-router-dom';
 
 const Dashboard = () => {
   const dispatch = useDispatch();
@@ -38,31 +41,35 @@ const Dashboard = () => {
   }
 
   return (
-    <React.Fragment>
+    <Layout>
       <Container>
         {genres.map((genre: any) => {
           return (
             <Genre key={genre.id}>
               <Genre.Header>
-                <Genre.Title variant="h4">{genre.name}</Genre.Title>
+                <Genre.Title variant="h4">
+                  <Genre.Link to={`/genre/${genre.id}`}>
+                    {genre.name}
+                  </Genre.Link>
+                </Genre.Title>
               </Genre.Header>
 
               <Genre.Grid container spacing={2}>
                 {genre.items.map((item: any) => {
                   return (
                     <Genre.Grid item key={item.id}>
-                      <Card>
-                        <Card.Link href={`/movies/${item.id}`}>
+                      <Card.Link component={Link} to={`/movies/${item.id}`}>
+                        <Card>
                           <Card.Image src={item.poster_path} alt={item.title} />
-                        </Card.Link>
 
-                        <Card.Content>
-                          <Card.Header>{item.title}</Card.Header>
-                          <Card.Body>
-                            {getDescription(item.description)}
-                          </Card.Body>
-                        </Card.Content>
-                      </Card>
+                          <Card.Content>
+                            <Card.Header>{item.title}</Card.Header>
+                            <Card.Body>
+                              {getDescription(item.description)}
+                            </Card.Body>
+                          </Card.Content>
+                        </Card>
+                      </Card.Link>
                     </Genre.Grid>
                   );
                 })}
@@ -71,7 +78,7 @@ const Dashboard = () => {
           );
         })}
       </Container>
-    </React.Fragment>
+    </Layout>
   );
 };
 

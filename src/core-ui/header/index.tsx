@@ -19,7 +19,6 @@ import { RootStore } from '../../store';
 import { deepOrange, deepPurple } from '@mui/material/colors';
 
 const pages = ['Explore', 'Genre', 'Watchlist'];
-const settings = ['My Watchlist'];
 
 const ResponsiveAppBar = () => {
   const dispatch = useDispatch();
@@ -91,7 +90,7 @@ const ResponsiveAppBar = () => {
             >
               <MenuIcon />
             </IconButton>
-            <Menu
+            {/* <Menu
               id="menu-appbar"
               anchorEl={anchorElNav}
               anchorOrigin={{
@@ -114,7 +113,7 @@ const ResponsiveAppBar = () => {
                   <Typography textAlign="center">{page}</Typography>
                 </MenuItem>
               ))}
-            </Menu>
+            </Menu> */}
           </Box>
           <Typography
             variant="h6"
@@ -122,8 +121,11 @@ const ResponsiveAppBar = () => {
             component="div"
             sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}
           >
-            LOGO
+            <StyledLink to="/" color="inherit">
+              Netflix Clone
+            </StyledLink>
           </Typography>
+
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
             {/* {pages.map((page) => (
               <Button

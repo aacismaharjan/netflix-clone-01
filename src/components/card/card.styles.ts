@@ -3,11 +3,15 @@ import styled from 'styled-components';
 
 export const StyledLink = styled(Link)`
   color: white;
+  display: block;
   text-decoration: none;
+  padding: 8px;
 `;
 
 export const StyledImage = styled.img`
   width: 100%;
+  height: 100%;
+  object-fit: cover;
 `;
 
 export const StyledContent = styled.div`
@@ -42,7 +46,8 @@ export const StyledCard = styled.div`
   position: relative;
   font-size: 14px;
   line-height: 21px;
-  max-width: 180px;
+  max-width: 220px;
+  width: 100%;
   height: 250px;
   overflow: hidden;
   border-radius: 8px;

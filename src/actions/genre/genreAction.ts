@@ -10,6 +10,7 @@ import {
 } from './genreTypes';
 import firebase from '../../constants/firebase';
 import { formatMovie } from '../../helpers/Utils';
+import { storeData } from '../../data/storeData';
 
 export const GetMoviesByGenre = () => {
   return async (dispatch: Dispatch<MoviesByGenreDispatchTypes>) => {
@@ -59,6 +60,12 @@ export const GetMoviesByGenre = () => {
         .then((data: any) => {
           dispatch({ type: GET_MOVIES_BY_GENRE_SUCCESS, payload: data });
         });
+
+      // Works offline
+      // dispatch({
+      //   type: GET_MOVIES_BY_GENRE_SUCCESS,
+      //   payload: storeData.genre.items,
+      // });
     } catch (error) {
       dispatch({ type: GET_MOVIES_BY_GENRE_ERROR });
     }

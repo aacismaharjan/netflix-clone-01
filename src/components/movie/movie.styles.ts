@@ -22,12 +22,20 @@ export const StyledContent = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    padding-top: 14px;
     padding-bottom: 28px;
     height: 100%;
   }
 `;
 export const StyledHeader = styled.div`
   font-size: 54px;
+  display: flex;
+  justify-content: space-between;
+  @media screen and (min-width: 767px) {
+    & .bookmark {
+      display: none;
+    }
+  }
 `;
 
 export const StyledTitle = styled(Typography)`
@@ -50,4 +58,9 @@ export const StyledImage = styled.img`
 export const StyledFooter = styled.div`
   display: flex;
   justify-content: space-between;
+  @media screen and (max-width: 767px) {
+    & button {
+      display: none;
+    }
+  }
 `;

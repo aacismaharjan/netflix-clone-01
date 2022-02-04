@@ -33,6 +33,7 @@ const GenreReducer = (
       return {
         ...state,
         loading: true,
+        error: false,
       };
     case GET_LOGIN_SUCCESS:
       return {
@@ -48,7 +49,7 @@ const GenreReducer = (
         loading: false,
         authenticated: false,
         user: null,
-        error: true,
+        error: action.payload,
       };
     case GET_SIGNUP_LOADING:
       return {

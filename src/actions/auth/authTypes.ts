@@ -22,6 +22,7 @@ type getLoginSuccess = {
 
 type getLoginError = {
   type: typeof GET_LOGIN_ERROR;
+  payload: any;
 };
 
 // Get Logout from the app

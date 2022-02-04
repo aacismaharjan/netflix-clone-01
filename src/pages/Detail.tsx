@@ -18,6 +18,8 @@ import Carousel from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
 import { movieResponsive } from '../helpers/Utils';
 import MoviesLoading, { MoviesFailed } from '../core-ui/progress';
+import BookmarkBorderOutlinedIcon from '@mui/icons-material/BookmarkBorderOutlined';
+import BookmarkIcon from '@mui/icons-material/Bookmark';
 
 const Detail = () => {
   const dispatch = useDispatch();
@@ -80,14 +82,6 @@ const Detail = () => {
     navigate(-1); // Goes 1 page back
   };
 
-  // if (error) {
-  //   return <span>Something went wrong!</span>;
-  // }
-
-  // if (loading || movie === null) {
-  //   return <span>Loading...</span>;
-  // }
-
   return (
     <Layout>
       {error && <MoviesFailed />}
@@ -108,6 +102,28 @@ const Detail = () => {
                   >
                     <ArrowBackIcon fontSize="inherit" />
                   </IconButton>
+
+                  {!isAddedToWatchList && (
+                    <IconButton
+                      color="inherit"
+                      size="large"
+                      onClick={handleToggleWatchList}
+                      className="bookmark"
+                    >
+                      <BookmarkBorderOutlinedIcon fontSize="inherit" />
+                    </IconButton>
+                  )}
+
+                  {isAddedToWatchList && (
+                    <IconButton
+                      color="inherit"
+                      size="large"
+                      onClick={handleToggleWatchList}
+                      className="bookmark"
+                    >
+                      <BookmarkIcon fontSize="inherit" />
+                    </IconButton>
+                  )}
                 </Movie.Header>
 
                 <Movie.Footer>
@@ -136,7 +152,7 @@ const Detail = () => {
                 <Genre.Title variant="h4">Related Movies</Genre.Title>
               </Genre.Header>
 
-              <Carousel responsive={movieResponsive}>
+              <Carousel responsive={movieResponsive} centerMode={true}>
                 {relatedMovies.map((item: any) => {
                   const id = item.id;
                   const path = `/movies/${id}`;

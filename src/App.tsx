@@ -11,17 +11,25 @@ import WatchList from './pages/WatchList';
 import GlobalStyles from './global-styles';
 import Detail from './pages/Detail';
 import RequireAuth from './helpers/RequireAuth';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { VerifyUser } from './actions/auth/authAction';
 import { GetMoviesByGenre } from './actions/genre/genreAction';
+import { RootStore } from './store';
 
 function App() {
   const dispatch = useDispatch();
 
+  const isUserValid = useSelector(
+    (state: RootStore) => state.auth.authenticated
+  );
+
   useEffect(() => {
     dispatch(VerifyUser());
-    dispatch(GetMoviesByGenre());
   }, [dispatch]);
+
+  useEffect(() => {
+    isUserValid && dispatch(GetMoviesByGenre());
+  }, [dispatch, isUserValid]);
 
   return (
     <React.Fragment>

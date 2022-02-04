@@ -22,6 +22,7 @@ const Dashboard = () => {
   const genreSelector = useSelector((state: RootStore) => state.genre);
 
   useEffect(() => {
+    // It will hit server whenever we visit dashboard
     // dispatch(GetMoviesByGenre());
   }, [dispatch]);
 
@@ -51,7 +52,7 @@ const Dashboard = () => {
                 </Genre.Title>
               </Genre.Header>
 
-              <Carousel responsive={movieResponsive}>
+              <Carousel responsive={movieResponsive} centerMode={true}>
                 {genre.items.map((item: any) => {
                   const id = item.id;
                   const path = `/movies/${id}`;

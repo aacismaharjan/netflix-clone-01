@@ -30,9 +30,13 @@ export const GetLogin = (credentials: any) => {
               email: userCredential.user.email,
             },
           });
+        })
+        .catch((error: any) => {
+          dispatch({ type: GET_LOGIN_ERROR, payload: error.message });
+          throw new Error(error);
         });
-    } catch (error) {
-      dispatch({ type: GET_LOGIN_ERROR });
+    } catch (error: any) {
+      dispatch({ type: GET_LOGIN_ERROR, payload: error.message });
     }
   };
 };
@@ -53,6 +57,10 @@ export const GetSignup = (credentials: any) => {
               email: userCredential.user.email,
             },
           });
+        })
+        .catch((error: any) => {
+          dispatch({ type: GET_LOGIN_ERROR, payload: error.message });
+          throw new Error(error);
         });
     } catch (error) {
       dispatch({ type: GET_SIGNUP_ERROR });
@@ -92,8 +100,8 @@ export const VerifyUser = () => {
           dispatch({ type: GET_LOGOUT_SUCCESS });
         }
       });
-    } catch (error) {
-      dispatch({ type: GET_LOGIN_ERROR });
+    } catch (error: any) {
+      dispatch({ type: GET_LOGIN_ERROR, payload: error.message });
     }
   };
 };

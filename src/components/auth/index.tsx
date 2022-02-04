@@ -1,8 +1,12 @@
-import { Form, StyledContainer } from './auth.styles';
+import { Form, StyledContainer, StyledLoader } from './auth.styles';
 
 function Auth() {
   return <div></div>;
 }
+
+Auth.Loader = function AuthLoader({ children, ...restProps }: any) {
+  return <StyledLoader {...restProps}>{children}</StyledLoader>;
+};
 
 Auth.Container = function AuthContainer({ children, ...restProps }: any) {
   return <StyledContainer {...restProps}>{children}</StyledContainer>;

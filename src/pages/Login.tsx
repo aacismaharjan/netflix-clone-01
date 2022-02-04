@@ -1,7 +1,7 @@
-import { Button, Grid, TextField } from '@mui/material';
+import { Alert, Button, Grid, Snackbar, TextField } from '@mui/material';
 import Auth from '../components/auth';
 import { useForm } from 'react-hook-form';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootStore } from '../store';
@@ -12,10 +12,18 @@ const Login = () => {
   const location: any = useLocation();
 
   const { register, handleSubmit } = useForm();
-
+  const authSelector = useSelector((state: RootStore) => state.auth);
   const isAuthenticated = useSelector(
     (state: RootStore) => state.auth.authenticated
   );
+
+  const [open, setOpen] = React.useState(false);
+
+  useEffect(() => {
+    if (authSelector.error) {
+      setOpen(Boolean(authSelector.error));
+    }
+  }, [authSelector]);
 
   const onSubmit = (data: any) => {
     dispatch(GetLogin(data));
@@ -25,8 +33,24 @@ const Login = () => {
     dispatch(GetSignup(data));
   };
 
+  const handleClose = (
+    event: React.SyntheticEvent | Event,
+    reason?: string
+  ) => {
+    if (reason === 'clickaway') return;
+    setOpen(false);
+  };
+
   if (isAuthenticated) {
     return <Navigate to={location.state.from.pathname} />;
+  }
+
+  if (authSelector.loading) {
+    return (
+      <Auth.Loader>
+        <img src="./netflix-logo.svg" alt="Netflix" width="140px" />
+      </Auth.Loader>
+    );
   }
 
   return (
@@ -72,6 +96,16 @@ const Login = () => {
           </Grid>
         </Grid>
       </Auth.Form>
+
+      <Snackbar
+        open={Boolean(open)}
+        autoHideDuration={5000}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
+          {authSelector.error}
+        </Alert>
+      </Snackbar>
     </Auth.Container>
   );
 };

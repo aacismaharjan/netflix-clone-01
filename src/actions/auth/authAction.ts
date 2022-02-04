@@ -8,16 +8,54 @@ import {
   GET_LOGOUT_LOADING,
   GET_LOGOUT_SUCCESS,
   AuthDispatchTypes,
+  GET_SIGNUP_LOADING,
+  GET_SIGNUP_SUCCESS,
+  GET_SIGNUP_ERROR,
 } from './authTypes';
+import firebase from '../../constants/firebase';
 
 export const GetLogin = (credentials: any) => {
   return async (dispatch: Dispatch<AuthDispatchTypes>) => {
     dispatch({ type: GET_LOGIN_LOADING });
 
     try {
-      dispatch({ type: GET_LOGIN_SUCCESS, payload: credentials });
+      firebase
+        .auth()
+        .signInWithEmailAndPassword(credentials.email, credentials.password)
+        .then((userCredential: any) => {
+          dispatch({
+            type: GET_LOGIN_SUCCESS,
+            payload: {
+              id: userCredential.user.uid,
+              email: userCredential.user.email,
+            },
+          });
+        });
     } catch (error) {
       dispatch({ type: GET_LOGIN_ERROR });
+    }
+  };
+};
+
+export const GetSignup = (credentials: any) => {
+  return async (dispatch: Dispatch<AuthDispatchTypes>) => {
+    dispatch({ type: GET_SIGNUP_LOADING });
+
+    try {
+      firebase
+        .auth()
+        .createUserWithEmailAndPassword(credentials.email, credentials.password)
+        .then((userCredential: any) => {
+          dispatch({
+            type: GET_SIGNUP_SUCCESS,
+            payload: {
+              id: userCredential.user.uid,
+              email: userCredential.user.email,
+            },
+          });
+        });
+    } catch (error) {
+      dispatch({ type: GET_SIGNUP_ERROR });
     }
   };
 };
@@ -27,9 +65,35 @@ export const GetLogout = () => {
     dispatch({ type: GET_LOGOUT_LOADING });
 
     try {
-      dispatch({ type: GET_LOGOUT_SUCCESS, payload: genreData });
+      firebase
+        .auth()
+        .signOut()
+        .then(() => {
+          dispatch({ type: GET_LOGOUT_SUCCESS });
+        });
     } catch (error) {
       dispatch({ type: GET_LOGOUT_ERROR });
+    }
+  };
+};
+
+export const VerifyUser = () => {
+  return async (dispatch: Dispatch<AuthDispatchTypes>) => {
+    dispatch({ type: GET_LOGIN_LOADING });
+
+    try {
+      firebase.auth().onAuthStateChanged((authUser) => {
+        if (authUser) {
+          dispatch({
+            type: GET_LOGIN_SUCCESS,
+            payload: { id: authUser.uid, email: authUser.email },
+          });
+        } else {
+          dispatch({ type: GET_LOGOUT_SUCCESS });
+        }
+      });
+    } catch (error) {
+      dispatch({ type: GET_LOGIN_ERROR });
     }
   };
 };

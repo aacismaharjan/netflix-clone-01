@@ -5,6 +5,9 @@ import {
   GET_LOGOUT_ERROR,
   GET_LOGOUT_LOADING,
   GET_LOGOUT_SUCCESS,
+  GET_SIGNUP_ERROR,
+  GET_SIGNUP_LOADING,
+  GET_SIGNUP_SUCCESS,
 } from '../actions/auth/authTypes';
 
 interface InitialStateI {
@@ -40,6 +43,27 @@ const GenreReducer = (
         error: false,
       };
     case GET_LOGIN_ERROR:
+      return {
+        ...state,
+        loading: false,
+        authenticated: false,
+        user: null,
+        error: true,
+      };
+    case GET_SIGNUP_LOADING:
+      return {
+        ...state,
+        loading: true,
+      };
+    case GET_SIGNUP_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        authenticated: true,
+        user: action.payload,
+        error: false,
+      };
+    case GET_SIGNUP_ERROR:
       return {
         ...state,
         loading: false,

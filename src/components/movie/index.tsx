@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   StyledMovie,
   StyledDescription,
@@ -12,8 +13,22 @@ function Movie({ children, ...restProps }: any) {
   return <StyledMovie {...restProps}>{children}</StyledMovie>;
 }
 
-Movie.Image = function MovieImage({ children, ...restProps }: any) {
-  return <StyledImage {...restProps}>{children}</StyledImage>;
+Movie.Image = function MovieImage({ children, src, ...restProps }: any) {
+  const [image, setImage] = useState(src);
+  const fallback =
+    'https://upload.wikimedia.org/wikipedia/en/thumb/f/f9/Baahubali_the_Conclusion.jpg/220px-Baahubali_the_Conclusion.jpg';
+
+  return (
+    <StyledImage
+      src={image}
+      onError={() => {
+        setImage(fallback);
+      }}
+      {...restProps}
+    >
+      {children}
+    </StyledImage>
+  );
 };
 
 Movie.Title = function MovieTitle({ children, ...restProps }: any) {

@@ -11,10 +11,12 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { GetLogout } from '../../actions/auth/authAction';
 import { Link, useNavigate } from 'react-router-dom';
 import { StyledLink } from './header.styles';
+import { RootStore } from '../../store';
+import { deepOrange, deepPurple } from '@mui/material/colors';
 
 const pages = ['Explore', 'Genre', 'Watchlist'];
 const settings = ['My Watchlist'];
@@ -29,6 +31,8 @@ const ResponsiveAppBar = () => {
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
     null
   );
+
+  const user = useSelector((state: RootStore) => state.auth.user);
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
@@ -135,10 +139,9 @@ const ResponsiveAppBar = () => {
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar
-                  alt="Remy Sharp"
-                  src="https://companyleaders.org/wp-content/uploads/2021/06/elon-musk.jpg"
-                />
+                <Avatar sx={{ bgcolor: deepPurple[500] }}>
+                  {user.email.charAt(0).toUpperCase()}
+                </Avatar>
               </IconButton>
             </Tooltip>
             <Menu

@@ -31,11 +31,24 @@ type getLogoutLoading = {
 
 type getLogoutSuccess = {
   type: typeof GET_LOGOUT_SUCCESS;
-  payload: any;
 };
 
 type getLogoutError = {
   type: typeof GET_LOGOUT_ERROR;
+};
+
+// Get Signup to the app
+type getSignupLoading = {
+  type: typeof GET_SIGNUP_LOADING;
+};
+
+type getSignupSuccess = {
+  type: typeof GET_SIGNUP_SUCCESS;
+  payload: any;
+};
+
+type getSignupError = {
+  type: typeof GET_SIGNUP_ERROR;
 };
 
 export type AuthDispatchTypes =
@@ -44,4 +57,7 @@ export type AuthDispatchTypes =
   | getLoginError
   | getLogoutLoading
   | getLogoutSuccess
-  | getLogoutError;
+  | getLogoutError
+  | getSignupLoading
+  | getSignupSuccess
+  | getSignupError;

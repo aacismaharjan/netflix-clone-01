@@ -10,6 +10,14 @@ import { RootStore } from '../store';
 import { useParams } from 'react-router';
 import Layout from '../core-ui/layout';
 import { Link, useNavigate } from 'react-router-dom';
+import {
+  AddToWatchlist,
+  RemoveFromWatchlist,
+} from '../actions/watchlist/watchlistAction';
+import Carousel from 'react-multi-carousel';
+import 'react-multi-carousel/lib/styles.css';
+import { movieResponsive } from '../helpers/Utils';
+import MoviesLoading, { MoviesFailed } from '../core-ui/progress';
 
 const Detail = () => {
   const dispatch = useDispatch();
@@ -22,14 +30,19 @@ const Detail = () => {
   const [relatedMovies, setRelatedMovies] = useState([]);
   const [error, setError] = useState(false);
 
+  const user = useSelector((state: RootStore) => state.auth.user);
   const movieSelector = useSelector((state: RootStore) => state.movie);
+  const watchListSelector = useSelector((state: RootStore) => state.watchlist);
 
   useEffect(() => {
     if (params && params.id) {
-      dispatch(GetMovie(parseInt(params.id)));
-      dispatch(GetRelatedMovies(parseInt(params.id)));
+      dispatch(GetMovie(params.id));
     }
   }, [dispatch, params]);
+
+  useEffect(() => {
+    if (movie) dispatch(GetRelatedMovies(movie));
+  }, [dispatch, movie]);
 
   useEffect(() => {
     setLoading(movieSelector.loading);
@@ -38,87 +51,115 @@ const Detail = () => {
     setError(movieSelector.error);
   }, [movieSelector]);
 
+  useEffect(() => {
+    if (movie) {
+      const check = (el: any) => el.id === movie.id;
+      const isMatched = watchListSelector.items.some(check);
+      setIsAddedToWatchList(isMatched);
+    }
+  }, [movie, watchListSelector.items]);
+
   const getDescription = (text: string) => {
-    return text.split(' ').slice(0, 25).join(' ');
+    return text.split(' ').slice(0, 18).join(' ');
   };
 
   const handleToggleWatchList = () => {
-    setIsAddedToWatchList((isAdded) => !isAdded);
+    if (movie) {
+      setIsAddedToWatchList((isAdded) => {
+        if (!isAdded) {
+          dispatch(AddToWatchlist(user.id, movie));
+        } else {
+          dispatch(RemoveFromWatchlist(user.id, movie.id));
+        }
+        return !isAdded;
+      });
+    }
   };
 
   const handleGoBack = () => {
     navigate(-1); // Goes 1 page back
   };
 
-  if (error) {
-    return <span>Something went wrong!</span>;
-  }
+  // if (error) {
+  //   return <span>Something went wrong!</span>;
+  // }
 
-  if (loading || movie === null) {
-    return <span>Loading...</span>;
-  }
+  // if (loading || movie === null) {
+  //   return <span>Loading...</span>;
+  // }
 
   return (
     <Layout>
-      <Movie>
-        <Movie.Image src={movie.poster_path} alt={movie.title} />
+      {error && <MoviesFailed />}
+      {loading && <MoviesLoading />}
 
-        <Movie.Content>
+      {movie && relatedMovies.length > 0 && (
+        <React.Fragment>
+          <Movie>
+            <Movie.Image src={movie.poster_path} alt={movie.title} />
+
+            <Movie.Content>
+              <Container>
+                <Movie.Header>
+                  <IconButton
+                    color="inherit"
+                    size="large"
+                    onClick={handleGoBack}
+                  >
+                    <ArrowBackIcon fontSize="inherit" />
+                  </IconButton>
+                </Movie.Header>
+
+                <Movie.Footer>
+                  <Movie.Title variant="h4">{movie.title}</Movie.Title>
+                  {!isAddedToWatchList && (
+                    <Button variant="contained" onClick={handleToggleWatchList}>
+                      Add to Watchlist
+                    </Button>
+                  )}
+
+                  {isAddedToWatchList && (
+                    <Button variant="contained" onClick={handleToggleWatchList}>
+                      Remove from Watchlist
+                    </Button>
+                  )}
+                </Movie.Footer>
+              </Container>
+            </Movie.Content>
+          </Movie>
+
           <Container>
-            <Movie.Header>
-              <IconButton color="inherit" size="large" onClick={handleGoBack}>
-                <ArrowBackIcon fontSize="inherit" />
-              </IconButton>
-            </Movie.Header>
+            <Movie.Description>{movie.description}</Movie.Description>
 
-            <Movie.Footer>
-              <Movie.Title variant="h4">{movie.title}</Movie.Title>
-              {!isAddedToWatchList && (
-                <Button variant="contained" onClick={handleToggleWatchList}>
-                  Add to Watchlist
-                </Button>
-              )}
+            <Genre>
+              <Genre.Header>
+                <Genre.Title variant="h4">Related Movies</Genre.Title>
+              </Genre.Header>
 
-              {isAddedToWatchList && (
-                <Button variant="contained" onClick={handleToggleWatchList}>
-                  Remove from Watchlist
-                </Button>
-              )}
-            </Movie.Footer>
+              <Carousel responsive={movieResponsive}>
+                {relatedMovies.map((item: any) => {
+                  const id = item.id;
+                  const path = `/movies/${id}`;
+
+                  return (
+                    <Card.Link key={id} component={Link} to={path}>
+                      <Card>
+                        <Card.Image src={item.poster_path} alt={item.title} />
+                        <Card.Content>
+                          <Card.Header>{item.title}</Card.Header>
+                          <Card.Body>
+                            {getDescription(item.description)}
+                          </Card.Body>
+                        </Card.Content>
+                      </Card>
+                    </Card.Link>
+                  );
+                })}
+              </Carousel>
+            </Genre>
           </Container>
-        </Movie.Content>
-      </Movie>
-
-      <Container>
-        <Movie.Description>{movie.description}</Movie.Description>
-
-        <Genre>
-          <Genre.Header>
-            <Genre.Title variant="h4">Related Movies</Genre.Title>
-          </Genre.Header>
-
-          <Genre.Grid container spacing={2}>
-            {relatedMovies.map((item: any) => {
-              return (
-                <Genre.Grid item key={item.id}>
-                  <Card.Link component={Link} to={`/movies/${item.id}`}>
-                    <Card>
-                      <Card.Image src={item.poster_path} alt={item.title} />
-
-                      <Card.Content>
-                        <Card.Header>{item.title}</Card.Header>
-                        <Card.Body>
-                          {getDescription(item.description)}
-                        </Card.Body>
-                      </Card.Content>
-                    </Card>
-                  </Card.Link>
-                </Genre.Grid>
-              );
-            })}
-          </Genre.Grid>
-        </Genre>
-      </Container>
+        </React.Fragment>
+      )}
     </Layout>
   );
 };

@@ -1,6 +1,4 @@
-import axios from 'axios';
 import { Dispatch } from 'react';
-import { genreData } from '../../data/genreData';
 import {
   GET_MOVIES_BY_GENRE_ERROR,
   GET_MOVIES_BY_GENRE_ID_ERROR,
@@ -10,41 +8,72 @@ import {
   GET_MOVIES_BY_GENRE_SUCCESS,
   MoviesByGenreDispatchTypes,
 } from './genreTypes';
+import firebase from '../../constants/firebase';
+import { formatMovie } from '../../helpers/Utils';
 
 export const GetMoviesByGenre = () => {
   return async (dispatch: Dispatch<MoviesByGenreDispatchTypes>) => {
     dispatch({ type: GET_MOVIES_BY_GENRE_LOADING });
 
     try {
-      const response = await axios.get(
-        'https://jsonplaceholder.typicode.com/posts'
-      );
+      firebase
+        .firestore()
+        .collection('movies')
+        .get()
+        .then((querySnapshots: any) => {
+          let allContents: any = [];
+          let tempGenreData: any = [];
 
-      dispatch({ type: GET_MOVIES_BY_GENRE_SUCCESS, payload: genreData });
+          querySnapshots.forEach((snapshot: any) => {
+            allContents = [
+              ...allContents,
+              { id: snapshot.id, ...snapshot.data() },
+            ];
+          });
+
+          tempGenreData = Array.from(
+            new Set(
+              allContents.reduce((total: any, current: any) => {
+                const temp = [...current.genres];
+                total = [...total, ...temp];
+                return total;
+              }, [])
+            )
+          );
+
+          tempGenreData = tempGenreData.map((item: string, index: number) => {
+            const type = item.toString().toLowerCase().split(' ').join('');
+            const tempItems = allContents.filter((content: any) =>
+              content.genres.includes(item)
+            );
+
+            return {
+              id: type,
+              type,
+              name: item,
+              items: tempItems.map((content: any) => formatMovie(content)),
+            };
+          });
+          return tempGenreData;
+        })
+        .then((data: any) => {
+          dispatch({ type: GET_MOVIES_BY_GENRE_SUCCESS, payload: data });
+        });
     } catch (error) {
       dispatch({ type: GET_MOVIES_BY_GENRE_ERROR });
     }
   };
 };
 
-export const GetMoviesByGenreId = (genreId: number) => {
+export const GetMoviesByGenreId = (genreId: string) => {
   return async (dispatch: Dispatch<MoviesByGenreDispatchTypes>) => {
     dispatch({ type: GET_MOVIES_BY_GENRE_ID_LOADING });
 
     try {
-      const data = genreData.find((genre) => genre.id === genreId);
-      const response = await axios.get(
-        `https://jsonplaceholder.typicode.com/posts/${genreId}`
-      );
-
-      if (data) {
-        dispatch({
-          type: GET_MOVIES_BY_GENRE_ID_SUCCESS,
-          payload: data,
-        });
-      } else {
-        dispatch({ type: GET_MOVIES_BY_GENRE_ID_ERROR });
-      }
+      dispatch({
+        type: GET_MOVIES_BY_GENRE_ID_SUCCESS,
+        payload: genreId,
+      });
     } catch (error) {
       dispatch({ type: GET_MOVIES_BY_GENRE_ID_ERROR });
     }

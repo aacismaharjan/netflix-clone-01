@@ -1,13 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { Grid, Container } from '@mui/material';
+import { useEffect, useState } from 'react';
+import { CircularProgress, Container } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { GetMoviesByGenre } from '../actions/genre/genreAction';
 import Card from '../components/card';
 import Genre from '../components/genre';
 import { RootStore } from '../store';
-import ResponsiveAppBar from '../core-ui/header';
 import Layout from '../core-ui/layout';
 import { Link } from 'react-router-dom';
+import Carousel from 'react-multi-carousel';
+import 'react-multi-carousel/lib/styles.css';
+import { movieResponsive } from '../helpers/Utils';
+import MoviesLoading, { MoviesFailed } from '../core-ui/progress';
 
 const Dashboard = () => {
   const dispatch = useDispatch();
@@ -19,7 +22,7 @@ const Dashboard = () => {
   const genreSelector = useSelector((state: RootStore) => state.genre);
 
   useEffect(() => {
-    dispatch(GetMoviesByGenre());
+    // dispatch(GetMoviesByGenre());
   }, [dispatch]);
 
   useEffect(() => {
@@ -29,20 +32,14 @@ const Dashboard = () => {
   }, [genreSelector]);
 
   const getDescription = (text: string) => {
-    return text.split(' ').slice(0, 25).join(' ');
+    return text.split(' ').slice(0, 18).join(' '); // Show only first 18 words
   };
-
-  if (loading) {
-    return <span>Loading...</span>;
-  }
-
-  if (error) {
-    return <span>Something went wrong!</span>;
-  }
 
   return (
     <Layout>
       <Container>
+        {error && <MoviesFailed />}
+        {loading && <MoviesLoading />}
         {genres.map((genre: any) => {
           return (
             <Genre key={genre.id}>
@@ -54,26 +51,26 @@ const Dashboard = () => {
                 </Genre.Title>
               </Genre.Header>
 
-              <Genre.Grid container spacing={2}>
+              <Carousel responsive={movieResponsive}>
                 {genre.items.map((item: any) => {
-                  return (
-                    <Genre.Grid item key={item.id}>
-                      <Card.Link component={Link} to={`/movies/${item.id}`}>
-                        <Card>
-                          <Card.Image src={item.poster_path} alt={item.title} />
+                  const id = item.id;
+                  const path = `/movies/${id}`;
 
-                          <Card.Content>
-                            <Card.Header>{item.title}</Card.Header>
-                            <Card.Body>
-                              {getDescription(item.description)}
-                            </Card.Body>
-                          </Card.Content>
-                        </Card>
-                      </Card.Link>
-                    </Genre.Grid>
+                  return (
+                    <Card.Link key={id} component={Link} to={path}>
+                      <Card>
+                        <Card.Image src={item.poster_path} alt={item.title} />
+                        <Card.Content>
+                          <Card.Header>{item.title}</Card.Header>
+                          <Card.Body>
+                            {getDescription(item.description)}
+                          </Card.Body>
+                        </Card.Content>
+                      </Card>
+                    </Card.Link>
                   );
                 })}
-              </Genre.Grid>
+              </Carousel>
             </Genre>
           );
         })}

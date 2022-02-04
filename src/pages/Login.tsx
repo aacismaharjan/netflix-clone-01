@@ -2,27 +2,32 @@ import { Button, Grid, TextField } from '@mui/material';
 import Auth from '../components/auth';
 import { useForm } from 'react-hook-form';
 import { useEffect } from 'react';
-import { Navigate } from 'react-router';
+import { Navigate, useLocation } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootStore } from '../store';
-import { GetLogin } from '../actions/auth/authAction';
+import { GetLogin, GetSignup } from '../actions/auth/authAction';
 
 const Login = () => {
   const dispatch = useDispatch();
+  const location: any = useLocation();
+
   const { register, handleSubmit } = useForm();
 
   const isAuthenticated = useSelector(
     (state: RootStore) => state.auth.authenticated
   );
 
-  if (isAuthenticated) {
-    return <Navigate to="/" />;
-  }
-
   const onSubmit = (data: any) => {
-    console.log('data', data);
     dispatch(GetLogin(data));
   };
+
+  const handleSignup = (data: any) => {
+    dispatch(GetSignup(data));
+  };
+
+  if (isAuthenticated) {
+    return <Navigate to={location.state.from.pathname} />;
+  }
 
   return (
     <Auth.Container>
@@ -49,13 +54,19 @@ const Login = () => {
           </Grid>
 
           <Grid item xs={12} md={6}>
-            <Button type="submit" variant="contained" color="primary" fullWidth>
+            <Button
+              type="submit"
+              size="large"
+              variant="contained"
+              color="primary"
+              fullWidth
+            >
               Sign In
             </Button>
           </Grid>
 
-          <Grid item xs={12} md={6}>
-            <Button variant="outlined" color="primary" fullWidth>
+          <Grid item xs={12} md={6} onClick={handleSubmit(handleSignup)}>
+            <Button variant="outlined" size="large" color="primary" fullWidth>
               Sign Up
             </Button>
           </Grid>

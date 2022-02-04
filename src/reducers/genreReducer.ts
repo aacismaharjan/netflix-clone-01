@@ -54,7 +54,8 @@ const GenreReducer = (
       return {
         ...state,
         loading: false,
-        item: action.payload,
+        item:
+          state.items.find((item: any) => item.id === action.payload) || null,
         error: false,
       };
     case GET_MOVIES_BY_GENRE_ID_ERROR:

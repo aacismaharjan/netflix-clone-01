@@ -30,6 +30,7 @@ const WatchListReducer = (
       return {
         ...state,
         loading: true,
+        item: null,
       };
     case GET_MOVIE_SUCCESS:
       return {
@@ -49,6 +50,7 @@ const WatchListReducer = (
       return {
         ...state,
         loading: true,
+        items: [],
       };
     case GET_RELATED_MOVIES_SUCCESS:
       return {

@@ -1,6 +1,6 @@
-import axios from 'axios';
 import { Dispatch } from 'react';
-import { watchlistData } from '../../data/watchlistData';
+import firebase from '../../constants/firebase';
+import { formatMovie } from '../../helpers/Utils';
 import {
   GET_MOVIE_ERROR,
   GET_MOVIE_LOADING,
@@ -11,41 +11,57 @@ import {
   GET_RELATED_MOVIES_ERROR,
 } from './movieTypes';
 
-export const GetMovie = (movieId: number) => {
+export const GetMovie = (movieId: string) => {
   return async (dispatch: Dispatch<AllWatchlistDispatchTypes>) => {
     dispatch({ type: GET_MOVIE_LOADING });
     try {
-      const data = watchlistData.find((watchlist) => watchlist.id === movieId);
-      const response = await axios.get(
-        `https://jsonplaceholder.typicode.com/posts/${movieId}`
-      );
-
-      if (data) {
-        dispatch({ type: GET_MOVIE_SUCCESS, payload: data });
-      } else {
-        dispatch({ type: GET_MOVIE_ERROR });
-      }
+      firebase
+        .firestore()
+        .collection('movies')
+        .doc(movieId)
+        .get()
+        .then((snapshot: any) => {
+          if (snapshot.exists) {
+            const movie = formatMovie({ ...snapshot.data(), id: snapshot.id });
+            dispatch({ type: GET_MOVIE_SUCCESS, payload: movie });
+          } else {
+            dispatch({ type: GET_MOVIE_ERROR });
+          }
+        });
     } catch (error) {
       dispatch({ type: GET_MOVIE_ERROR });
     }
   };
 };
 
-export const GetRelatedMovies = (movieId: number) => {
+export const GetRelatedMovies = (movie: any) => {
   return async (dispatch: Dispatch<AllWatchlistDispatchTypes>) => {
     dispatch({ type: GET_RELATED_MOVIES_LOADING });
 
     try {
-      const data = watchlistData.find((watchlist) => watchlist.id === movieId);
-      const response = await axios.get(
-        `https://jsonplaceholder.typicode.com/posts/${movieId}`
-      );
+      firebase
+        .firestore()
+        .collection('movies')
+        .where('genres', 'array-contains-any', movie.genres)
+        .limit(11)
+        .get()
+        .then((querySnapshots: any) => {
+          let allContents: any = [];
 
-      if (data) {
-        dispatch({ type: GET_RELATED_MOVIES_SUCCESS, payload: watchlistData });
-      } else {
-        dispatch({ type: GET_RELATED_MOVIES_ERROR });
-      }
+          querySnapshots.forEach((snapshot: any) => {
+            allContents = [
+              ...allContents,
+              formatMovie({ id: snapshot.id, ...snapshot.data() }),
+            ];
+          });
+
+          dispatch({
+            type: GET_RELATED_MOVIES_SUCCESS,
+            payload: allContents
+              .slice(0, 10)
+              .filter((item: any) => item.id !== movie.id),
+          });
+        });
     } catch (error) {
       dispatch({ type: GET_RELATED_MOVIES_ERROR });
     }

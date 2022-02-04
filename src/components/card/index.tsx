@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   StyledCard,
   StyledLink,
@@ -15,8 +16,19 @@ Card.Link = function CardLink({ children, ...restProps }: any) {
   return <StyledLink {...restProps}>{children}</StyledLink>;
 };
 
-Card.Image = function CardImage({ ...restProps }: any) {
-  return <StyledImage {...restProps} />;
+Card.Image = function CardImage({ src, ...restProps }: any) {
+  const [image, setImage] = useState(src);
+  const fallback =
+    'https://upload.wikimedia.org/wikipedia/en/thumb/f/f9/Baahubali_the_Conclusion.jpg/220px-Baahubali_the_Conclusion.jpg';
+  return (
+    <StyledImage
+      src={image}
+      {...restProps}
+      onError={() => {
+        setImage(fallback);
+      }}
+    />
+  );
 };
 
 Card.Content = function CardContent({ children, ...restProps }: any) {

@@ -7,7 +7,6 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  SelectChangeEvent,
 } from '@mui/material';
 import Card from '../components/card';
 import Genre from '../components/genre';
@@ -16,23 +15,28 @@ import { useDispatch, useSelector } from 'react-redux';
 import { GetMoviesByGenreId } from '../actions/genre/genreAction';
 import { RootStore } from '../store';
 import Layout from '../core-ui/layout';
+import { Link } from 'react-router-dom';
+import Fuse from 'fuse.js';
+import { useForm } from 'react-hook-form';
+import { arrangeMovies } from '../helpers/Utils';
 
 const GenrePage = () => {
   const params = useParams();
   const dispatch = useDispatch();
+  const { register, watch } = useForm();
 
-  const [age, setAge] = useState('');
   const [loading, setLoading] = useState(false);
   const [genre, setGenre] = useState<any>(null);
+  const [filteredMovies, setFilteredMovies] = useState<any>([]);
   const [error, setError] = useState(false);
 
   const genreSelector = useSelector((state: RootStore) => state.genre);
+  const searchTerm = watch('search');
+  const sortBy = watch('sortBy');
 
   useEffect(() => {
-    if (params && params.id) {
-      dispatch(GetMoviesByGenreId(parseInt(params.id)));
-    }
-  }, [params, dispatch]);
+    if (params && params.id) dispatch(GetMoviesByGenreId(params.id));
+  }, [dispatch, params, genreSelector.items]);
 
   useEffect(() => {
     setLoading(genreSelector.loading);
@@ -40,12 +44,26 @@ const GenrePage = () => {
     setError(genreSelector.error);
   }, [genreSelector]);
 
-  const handleChange = (event: SelectChangeEvent) => {
-    setAge(event.target.value as string);
-  };
+  useEffect(() => {
+    if (genre) setFilteredMovies(genre.items);
+  }, [genre]);
+
+  useEffect(() => {
+    if ((searchTerm !== undefined || sortBy !== undefined) && genre) {
+      let items = genre.items;
+      const fuse = new Fuse(items, { keys: ['title'] });
+      const results = fuse.search(searchTerm).map(({ item }) => item);
+
+      if (items.length > 0 && searchTerm.length > 2) {
+        setFilteredMovies(results);
+      } else {
+        setFilteredMovies(genre.items);
+      }
+    }
+  }, [searchTerm, genre, sortBy]);
 
   const getDescription = (text: string) => {
-    return text.split(' ').slice(0, 25).join(' ');
+    return text.split(' ').slice(0, 18).join(' ');
   };
 
   if (error) {
@@ -67,25 +85,18 @@ const GenrePage = () => {
               <Grid item xs={6}>
                 <TextField
                   label="Search"
-                  name="search"
                   variant="outlined"
                   fullWidth
+                  {...register('search')}
                 />
               </Grid>
 
               <Grid item xs={6}>
                 <FormControl fullWidth>
-                  <InputLabel id="demo-simple-select-label">
-                    Sort by year
-                  </InputLabel>
-                  <Select
-                    labelId="demo-simple-select-label"
-                    value={age}
-                    label="Sort by year"
-                    onChange={handleChange}
-                  >
-                    <MenuItem value={10}>Sort by Ascending</MenuItem>
-                    <MenuItem value={20}>Sort by Descending</MenuItem>
+                  <InputLabel>Sort by year</InputLabel>
+                  <Select label="Sort by year" {...register('sortBy')}>
+                    <MenuItem value={'asc'}>Sort by Ascending</MenuItem>
+                    <MenuItem value={'desc'}>Sort by Descending</MenuItem>
                   </Select>
                 </FormControl>
               </Grid>
@@ -93,22 +104,26 @@ const GenrePage = () => {
           </Genre.Header>
 
           <Genre.Grid container spacing={2}>
-            {genre.items.map((item: any) => {
-              return (
-                <Genre.Grid item key={item.id}>
-                  <Card>
-                    <Card.Link href={`/movies/${item.id}`}>
-                      <Card.Image src={item.poster_path} alt={item.title} />
-                    </Card.Link>
+            {filteredMovies
+              .sort((a: any, b: any) => arrangeMovies(a, b, sortBy))
+              .map((item: any) => {
+                return (
+                  <Genre.Grid item key={item.id}>
+                    <Card.Link component={Link} to={`/movies/${item.id}`}>
+                      <Card>
+                        <Card.Image src={item.poster_path} alt={item.title} />
 
-                    <Card.Content>
-                      <Card.Header>{item.title}</Card.Header>
-                      <Card.Body>{getDescription(item.description)}</Card.Body>
-                    </Card.Content>
-                  </Card>
-                </Genre.Grid>
-              );
-            })}
+                        <Card.Content>
+                          <Card.Header>{item.title}</Card.Header>
+                          <Card.Body>
+                            {getDescription(item.description)}
+                          </Card.Body>
+                        </Card.Content>
+                      </Card>
+                    </Card.Link>
+                  </Genre.Grid>
+                );
+              })}
           </Genre.Grid>
         </Genre>
       </Container>

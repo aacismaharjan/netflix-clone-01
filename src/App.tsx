@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StylesProvider } from '@mui/styles';
 import { ThemeProvider } from '@mui/material';
 import { ThemeProvider as StyledThemeProvider } from 'styled-components';
@@ -11,8 +11,18 @@ import WatchList from './pages/WatchList';
 import GlobalStyles from './global-styles';
 import Detail from './pages/Detail';
 import RequireAuth from './helpers/RequireAuth';
+import { useDispatch } from 'react-redux';
+import { VerifyUser } from './actions/auth/authAction';
+import { GetMoviesByGenre } from './actions/genre/genreAction';
 
 function App() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(VerifyUser());
+    dispatch(GetMoviesByGenre());
+  }, [dispatch]);
+
   return (
     <React.Fragment>
       <GlobalStyles />

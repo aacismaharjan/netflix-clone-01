@@ -15,21 +15,21 @@ import { useDispatch, useSelector } from 'react-redux';
 import { VerifyUser } from './actions/auth/authAction';
 import { GetMoviesByGenre } from './actions/genre/genreAction';
 import { RootStore } from './store';
+import { GetAllWatchlist } from './actions/watchlist/watchlistAction';
 
 function App() {
   const dispatch = useDispatch();
 
-  const isUserValid = useSelector(
-    (state: RootStore) => state.auth.authenticated
-  );
+  const authUser = useSelector((state: RootStore) => state.auth);
 
   useEffect(() => {
     dispatch(VerifyUser());
   }, [dispatch]);
 
   useEffect(() => {
-    isUserValid && dispatch(GetMoviesByGenre());
-  }, [dispatch, isUserValid]);
+    authUser.authenticated && dispatch(GetMoviesByGenre());
+    authUser.authenticated && dispatch(GetAllWatchlist(authUser.user.id));
+  }, [dispatch, authUser.authenticated, authUser.user]);
 
   return (
     <React.Fragment>

@@ -36,8 +36,8 @@ const GenrePage = () => {
   const sortBy = watch('sortBy');
 
   useEffect(() => {
-    if (params && params.id) dispatch(GetMoviesByGenreId(params.id));
-  }, [dispatch, params, genreSelector.items]);
+    if (params.id) dispatch(GetMoviesByGenreId(params.id));
+  }, [dispatch, params.id, genreSelector.items]);
 
   useEffect(() => {
     setLoading(genreSelector.loading);

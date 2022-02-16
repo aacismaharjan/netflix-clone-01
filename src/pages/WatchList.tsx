@@ -7,7 +7,6 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  SelectChangeEvent,
 } from '@mui/material';
 import Card from '../components/card';
 import Genre from '../components/genre';
@@ -36,7 +35,7 @@ const WatchList = () => {
   const sortBy = watch('sortBy');
 
   useEffect(() => {
-    // dispatch(GetAllWatchlist(user.id));
+    dispatch(GetAllWatchlist(user.id));
   }, [dispatch, user]);
 
   useEffect(() => {
@@ -62,14 +61,6 @@ const WatchList = () => {
   const getDescription = (text: string) => {
     return text.split(' ').slice(0, 18).join(' ');
   };
-
-  if (error) {
-    return <span>Something went wrong!</span>;
-  }
-
-  if (loading) {
-    return <span>Loading...</span>;
-  }
 
   return (
     <Layout>

@@ -23,23 +23,52 @@ export const GetAllWatchlist = (userId: string) => {
     dispatch({ type: GET_ALL_WATCHLIST_LOADING });
 
     try {
-      // firebase
-      //   .firestore()
-      //   .collection('watchlist')
-      //   .doc(userId)
-      //   .get()
-      //   .then((querySnapshots: any) => {
-      //     let allContents: any = [];
-      //     querySnapshots.forEach((snapshot: any) => {
-      //       allContents = [
-      //         ...allContents,
-      //         { id: snapshot.id, ...snapshot.data() },
-      //       ];
-      //     });
-      //     console.log('allContents', allContents);
-      //   });
+      firebase
+        .firestore()
+        .collection('watchlist')
+        .doc(userId)
+        .get()
+        .then(async (snapshot: any) => {
+          if (snapshot.exists) {
+            const watchlist = [];
+            let items: any = [];
 
-      dispatch({ type: GET_ALL_WATCHLIST_SUCCESS, payload: [] });
+            for (let movieId in snapshot.data()) {
+              if (snapshot.data()[movieId]) {
+                watchlist.push(movieId);
+              }
+            }
+
+            await Promise.all(
+              watchlist.map(async (item) => {
+                await firebase
+                  .firestore()
+                  .collection('movies')
+                  .doc(item)
+                  .get()
+                  .then((snapshot) => {
+                    if (snapshot.exists) {
+                      const item = { id: snapshot.id, ...snapshot.data() };
+                      items.push(item);
+                    }
+                  });
+
+                return item;
+              })
+            );
+
+            dispatch({
+              type: GET_ALL_WATCHLIST_SUCCESS,
+              payload: items.map((item: any) => formatMovie(item)),
+            });
+          } else {
+            dispatch({
+              type: GET_ALL_WATCHLIST_SUCCESS,
+              payload: [],
+            });
+          }
+        })
+        .catch((err: any) => dispatch({ type: GET_ALL_WATCHLIST_ERROR }));
     } catch (error) {
       dispatch({ type: GET_ALL_WATCHLIST_ERROR });
     }
@@ -55,63 +84,140 @@ export const AddToWatchlist = (userId: string, movie: any) => {
         .firestore()
         .collection('watchlist')
         .doc(userId)
-        .update({
-          [movie.id]: true,
-        })
-        .then(() => {
-          firebase
-            .firestore()
-            .collection('movies')
-            .doc(movie.id)
-            .get()
-            .then((snapshot: any) => {
-              if (snapshot.exists) {
-                dispatch({
-                  type: ADD_TO_WATCHLIST_SUCCESS,
-                  payload: formatMovie({ id: snapshot.id, ...snapshot.data() }),
-                });
-              }
-            });
-        })
-        .catch((error) => {
-          console.log('Error', error);
+        .get()
+        .then((snapshot) => {
+          if (snapshot.exists) {
+            firebase
+              .firestore()
+              .collection('watchlist')
+              .doc(userId)
+              .update({
+                [movie.id]: true,
+              })
+              .then(() => {
+                firebase
+                  .firestore()
+                  .collection('movies')
+                  .doc(movie.id)
+                  .get()
+                  .then((snapshot: any) => {
+                    if (snapshot.exists) {
+                      dispatch({
+                        type: ADD_TO_WATCHLIST_SUCCESS,
+                        payload: formatMovie({
+                          id: snapshot.id,
+                          ...snapshot.data(),
+                        }),
+                      });
+                    }
+                  });
+              })
+              .catch((error) => {
+                console.log('Error', error);
+              });
+          } else {
+            firebase
+              .firestore()
+              .collection('watchlist')
+              .doc(userId)
+              .set({
+                [movie.id]: true,
+              })
+              .then(() => {
+                firebase
+                  .firestore()
+                  .collection('movies')
+                  .doc(movie.id)
+                  .get()
+                  .then((snapshot: any) => {
+                    if (snapshot.exists) {
+                      dispatch({
+                        type: ADD_TO_WATCHLIST_SUCCESS,
+                        payload: formatMovie({
+                          id: snapshot.id,
+                          ...snapshot.data(),
+                        }),
+                      });
+                    }
+                  });
+              })
+              .catch((error) => {
+                console.log('Error', error);
+              });
+          }
         });
-
-      dispatch({
-        type: ADD_TO_WATCHLIST_SUCCESS,
-        payload: movie,
-      });
     } catch (error) {
       dispatch({ type: ADD_TO_WATCHLIST_ERROR });
     }
   };
 };
 
-export const RemoveFromWatchlist = (userId: string, movieId: string) => {
+export const RemoveFromWatchlist = (userId: string, movieId: any) => {
   return async (dispatch: Dispatch<AllWatchlistDispatchTypes>) => {
     dispatch({ type: REMOVE_FROM_WATCHLIST_LOADING });
 
     try {
-      // firebase
-      //   .firestore()
-      //   .collection('watchlist')
-      //   .doc(userId)
-      //   .update({
-      //     [movieId]: false,
-      //   })
-      //   .then(() => {
-      //     dispatch({
-      //       type: REMOVE_FROM_WATCHLIST_SUCCESS,
-      //       payload: movieId,
-      //     });
-      //   });
-
-      dispatch({
-        type: REMOVE_FROM_WATCHLIST_SUCCESS,
-        payload: movieId,
-      });
+      firebase
+        .firestore()
+        .collection('watchlist')
+        .doc(userId)
+        .get()
+        .then((snapshot) => {
+          if (snapshot.exists) {
+            firebase
+              .firestore()
+              .collection('watchlist')
+              .doc(userId)
+              .update({
+                [movieId]: false,
+              })
+              .then(() => {
+                firebase
+                  .firestore()
+                  .collection('movies')
+                  .doc(movieId)
+                  .get()
+                  .then((snapshot: any) => {
+                    if (snapshot.exists) {
+                      dispatch({
+                        type: REMOVE_FROM_WATCHLIST_SUCCESS,
+                        payload: snapshot.id,
+                      });
+                    }
+                  });
+              })
+              .catch((error) => {
+                console.log('Error', error);
+              });
+          } else {
+            firebase
+              .firestore()
+              .collection('watchlist')
+              .doc(userId)
+              .set({
+                [movieId]: false,
+              })
+              .then(() => {
+                firebase
+                  .firestore()
+                  .collection('movies')
+                  .doc(movieId)
+                  .get()
+                  .then((snapshot: any) => {
+                    if (snapshot.exists) {
+                      dispatch({
+                        type: REMOVE_FROM_WATCHLIST_SUCCESS,
+                        payload: snapshot.id,
+                      });
+                    }
+                  });
+              })
+              .catch((error) => {
+                console.log('Error', error);
+              });
+          }
+        });
     } catch (error) {
-      console.log('ERROR', error);
       dispatch({ type: REMOVE_FROM_WATCHLIST_ERROR });
     }
   };

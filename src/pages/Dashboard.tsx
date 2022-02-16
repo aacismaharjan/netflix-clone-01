@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
-import { CircularProgress, Container } from '@mui/material';
+import { Container } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
-import { GetMoviesByGenre } from '../actions/genre/genreAction';
 import Card from '../components/card';
 import Genre from '../components/genre';
 import { RootStore } from '../store';

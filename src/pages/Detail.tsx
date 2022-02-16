@@ -20,6 +20,7 @@ import { movieResponsive } from '../helpers/Utils';
 import MoviesLoading, { MoviesFailed } from '../core-ui/progress';
 import BookmarkBorderOutlinedIcon from '@mui/icons-material/BookmarkBorderOutlined';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
+import firebase from '../constants/firebase';
 
 const Detail = () => {
   const dispatch = useDispatch();
@@ -37,10 +38,11 @@ const Detail = () => {
   const watchListSelector = useSelector((state: RootStore) => state.watchlist);
 
   useEffect(() => {
-    if (params && params.id) {
+    console.log('params', params);
+    if (params.id) {
       dispatch(GetMovie(params.id));
     }
-  }, [dispatch, params]);
+  }, [params.id]);
 
   useEffect(() => {
     if (movie) dispatch(GetRelatedMovies(movie));

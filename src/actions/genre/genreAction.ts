@@ -59,6 +59,9 @@ export const GetMoviesByGenre = () => {
         })
         .then((data: any) => {
           dispatch({ type: GET_MOVIES_BY_GENRE_SUCCESS, payload: data });
+        })
+        .catch((error) => {
+          throw new Error(error);
         });
 
       // Works offline
